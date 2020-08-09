@@ -49,44 +49,77 @@ end
 % This is just here for demonstration purposes showing how the robots will
 % move.  You will need to comment out this loop, and comment in the while
 % loop below where you will add the EKF code.  
-for i=1:50
-    robot = move_robot( robot, robot.x+cos(robot.theta), robot.y+sin(robot.theta), robot.theta+0.05*randn );
-    robot_hat = move_robot( robot_hat, robot_hat.x+cos(robot_hat.theta), robot_hat.y+sin(robot_hat.theta), robot_hat.theta+0.05*randn );
-    pause(0.5);
+for i=1:300
+    % leg 1
+    if (i <= 90)
+        robot = move_robot( robot, robot.x + 1, robot.y, robot.theta);
+        
+    % leg 2
+    elseif (i > 90 && i <= 95)
+        robot = move_robot( robot, robot.x, robot.y, robot.theta + (pi/2)/5);
+    
+    % leg 3
+    elseif (i > 95 && i <= 145)
+        robot = move_robot( robot, robot.x, robot.y+1, robot.theta);
+    
+    % leg 4
+    elseif (i > 145 && i <= 150)
+        robot = move_robot( robot, robot.x, robot.y, robot.theta + (pi/2)/5);
+    
+    % leg 5
+    elseif (i > 150 && i <= 240)
+        robot = move_robot( robot, robot.x - 1, robot.y, robot.theta);
+    
+    % leg 6
+    elseif (i > 240 && i <= 245)
+        robot = move_robot( robot, robot.x, robot.y, robot.theta + (pi/2)/5);
+        
+    % leg 7
+    elseif (i > 245 && i <= 295)
+        robot = move_robot( robot, robot.x, robot.y-1, robot.theta);
+    
+    % leg 8
+    else
+        robot = move_robot( robot, robot.x, robot.y, robot.theta + (pi/2)/5);
+    end
+    
+    %robot = move_robot( robot, robot.x+cos(robot.theta), robot.y+sin(robot.theta), robot.theta+0.05*randn );
+    %robot_hat = move_robot( robot_hat, robot_hat.x+cos(robot_hat.theta), robot_hat.y+sin(robot_hat.theta), robot_hat.theta+0.05*randn );
+    pause(0.05);
 end
 
 
 % %******************************************
 % % ADD OTHER CODE HERE
 % %******************************************
-% current_leg=1;
-% while current_leg~=9
-%     % Measurement Update Phase
-%     for i=1:num_cameras
-%         % Each camera is tested to see if it can be seen by the robot.  
-%         % Visible cameras are set to green, and a line reflecting its
-%         % measured position as estimated by the robot is also plotted.  
-%         [ camera(i), bearing ] = test_camera( camera(i), robot );        
-%         if ~isempty( bearing )
-%             [ robot_hat, P ] = MeasurementUpdate( robot_hat, P, camera(i), bearing );
-% 
+ current_leg=1;
+ while current_leg~=9
+     % Measurement Update Phase
+     for i=1:num_cameras
+         % Each camera is tested to see if it can be seen by the robot.  
+         % Visible cameras are set to green, and a line reflecting its
+         % measured position as estimated by the robot is also plotted.  
+         [ camera(i), bearing ] = test_camera( camera(i), robot );        
+         if ~isempty( bearing )
+             [ robot_hat, P ] = MeasurementUpdate( robot_hat, P, camera(i), bearing );
+ 
 % %******************************************
 % % ADD OTHER CODE HERE
 % %******************************************
 % 
-%         end
-%     end
-% 
-%     % Time Update Phase.  Note we do multiple time updates for each
-%     % measurement update because the update rate of the odometry is higher
-%     for j=1:1/DT_ODOM
-%         [ robot, robot_hat, P ] = TimeUpdate( robot, robot_hat, P, legV, legOmega );        
+         end
+     end
+ 
+     % Time Update Phase.  Note we do multiple time updates for each
+     % measurement update because the update rate of the odometry is higher
+     for j=1:1/DT_ODOM
+         [ robot, robot_hat, P ] = TimeUpdate( robot, robot_hat, P, legV, legOmega );        
 % %******************************************
 % % ADD OTHER CODE HERE
 % %******************************************
-%     end
-% 
-% end
+     end
+ 
+ end
 
 %==================================================================================
 function [ robot, robot_hat, P ] = TimeUpdate( robot, robot_hat, P, v, omega )
@@ -102,7 +135,21 @@ function [ robotHat, P ] = MeasurementUpdate( robot_hat, P, camera, range )
 %==================================================================================
 global SIGMA_BEARING;
 %******************************************
-% ADD OTHER CODE HERE
+% for i=1:camera.size
+ %       if (range <= camera(i).range)
+            
 %******************************************
 
-
+%==================================================================================
+function camera = make_camera(x, y, range, color)
+%==================================================================================
+    % Initialize the camera
+    camera.x = x;
+    camera.y = y;
+    camera.range = range;
+    camera.color = color;
+    
+    % Camera patch
+    fig_coords = [x-1, x+1, x; y, y, y+2];
+    camera.fig_coords = fig_coords;
+    camera.h = patch(fig_coords(1,:), fig_coords(2,:), color);
